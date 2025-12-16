@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>DSS – MBA Placement & Salary Predictor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background:#f4f6f8; padding:30px }
+    .card { background:white; padding:20px; max-width:700px; margin:auto;
+            border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.1) }
+    label { font-size:14px; display:block; margin-top:10px }
+    input, select { width:100%; padding:8px; margin-top:4px }
+    button { margin-top:15px; padding:10px; background:#2563eb; color:white;
+             border:none; border-radius:6px; cursor:pointer }
+    .result { margin-top:20px; padding:15px; background:#eef2ff; border-radius:6px }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>MBA DSS – Placement & Salary Prediction</h2>
+
+  <label>Specialization</label>
+  <select id="spec">
+    <option value="HR">Marketing & HR</option>
+    <option value="FIN">Marketing & Finance</option>
+    <option value="IB">Marketing & IB</option>
+  </select>
+
+  <label>Percent MBA</label>
+  <input type="number" id="percent" value="65">
+
+  <label>Communication Marks</label>
+  <input type="number" id="comm" value="70">
+
+  <label>Project Work Marks</label>
+  <input type="number" id="proj" value="75">
+
+  <label>BOCA Marks</label>
+  <input type="number" id="boca" value="72">
+
+  <button onclick="predict()">Predict</button>
+
+  <div id="output" class="result" style="display:none">
+    <h3 id="placement"></h3>
+    <p id="salary"></p>
+    <canvas id="lineChart"></canvas>
+  </div>
+</div>
+
+<script>
+function predict(){
+  const percent = +document.getElementById("percent").value;
+  const comm = +document.getElementById("comm").value;
+  const proj = +document.getElementById("proj").value;
+  const boca = +document.getElementById("boca").value;
+
+  // ---- Simple decision rule (proxy for logistic regression) ----
+  const score = percent*0.3 + comm*0.2 + proj*0.3 + boca*0.2;
+  const placed = score >= 65;
+
+  document.getElementById("output").style.display = "block";
+  document.getElementById("placement").innerText =
+      placed ? "PLACED ✅" : "NOT PLACED ❌";
+
+  let salary = 0;
+  if(placed){
+    salary = 200000 + percent*1500 + proj*800;
+    document.getElementById("salary").innerText =
+      "Predicted Salary: RM " + salary.toFixed(0);
+  } else {
+    document.getElementById("salary").innerText =
+      "Salary Prediction: RM 0";
+  }
+
+  // ---- Line graph ----
+  new Chart(document.getElementById("lineChart"), {
+    type: 'line',
+    data: {
+      labels: ['MBA %', 'Comm', 'Project', 'BOCA', 'Salary/10000'],
+      datasets: [{
+        data: [percent, comm, proj, boca, salary/10000],
+        borderWidth: 2,
+        fill: true,
+        tension: 0.3
+      }]
+    }
+  });
+}
+</script>
+
+</body>
+</html>
